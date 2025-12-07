@@ -1,13 +1,16 @@
 import type {EntryContext} from '@remix-run/node';
 import {RemixServer} from '@remix-run/react';
 import {renderToString} from 'react-dom/server';
+import {createContext} from './lib/context.server';
 
-export default function handleRequest(
+export default async function handleRequest(
   request: Request,
   responseStatusCode: number,
   responseHeaders: Headers,
   remixContext: EntryContext
 ) {
+  const context = await createContext(request);
+  
   const markup = renderToString(
     <RemixServer context={remixContext} url={request.url} />
   );
@@ -18,12 +21,5 @@ export default function handleRequest(
     status: responseStatusCode,
     headers: responseHeaders,
   });
-}
-
-export function getLoadContext() {
-  return async (request: Request) => {
-    const {createContext} = await import('./lib/context.server');
-    return createContext(request);
-  };
 }
 
