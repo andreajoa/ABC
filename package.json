@@ -14,8 +14,9 @@
     "format": "prettier --write ."
   },
   "dependencies": {
-    "@remix-run/node": "^2.7.0",
-    "@remix-run/react": "^2.7.0",
+    "@remix-run/node": "^2.16.0",
+    "@remix-run/react": "^2.16.0",
+    "@remix-run/serve": "^2.16.0",
     "@shopify/hydrogen": "^2024.10.0",
     "@shopify/hydrogen-react": "^2024.10.0",
     "@shopify/remix-oxygen": "^2.0.0",
@@ -25,7 +26,7 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@remix-run/dev": "^2.7.0",
+    "@remix-run/dev": "^2.16.0",
     "@vercel/remix": "^2.16.7",
     "@shopify/prettier-config": "^1.0.3",
     "@types/react": "^18.2.20",
@@ -48,4 +49,3 @@
     "node": ">=18.0.0"
   }
 }
-
