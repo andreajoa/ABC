@@ -1,0 +1,609 @@
+# PRD: Vastara Headless Shopify Hydrogen Store
+## Product Requirements Document
+
+---
+
+## 🎯 PROJECT OVERVIEW
+
+**Project Name:** Vastara Luxury Watch Store - Headless Commerce  
+**Repository:** https://github.com/andreajoa/ABC  
+**Platform:** Shopify Hydrogen + Remix  
+**Deployment:** Vercel  
+**Domain:** Connected to existing Shopify store  
+**Status:** Product page EXISTS in `/app/routes/products.$handle.jsx`
+
+---
+
+## 📋 PROJECT SCOPE
+
+### **What EXISTS:**
+- ✅ Product page template (`products.$handle.jsx`) - ALREADY BUILT
+- ✅ GitHub repository setup
+- ✅ Shopify store with 500+ products and 8 collections
+
+### **What NEEDS to be BUILT:**
+1. **Home Page** (`_index.jsx`)
+2. **Collections Page** (`collections.$handle.jsx`)
+3. **Shopify Storefront API Integration**
+4. **Vercel Deployment Configuration**
+5. **Complete Hydrogen/Remix Project Structure**
+
+---
+
+## 🏗️ TECHNICAL ARCHITECTURE
+
+### **Stack:**
+- **Frontend:** React 18 + Remix 2.x
+- **Framework:** Shopify Hydrogen 2024
+- **Styling:** Tailwind CSS (JIT mode)
+- **Icons:** Lucide React
+- **Deployment:** Vercel
+- **Backend:** Shopify Storefront API 2024-10
+- **Markets:** USA, UK, Canada, Australia
+
+### **Design System:**
+```css
+Primary Colors:
+- Forest Green: #0a3d2f, #1a5757
+- Luxury Gold: #d4af69, #b87333
+- Cream: #fefdf8
+- Neutral: #2a2a2a, #9d8b7c
+
+Fonts:
+- Headings: 'Cormorant Garamond', serif
+- Body: 'Inter', sans-serif
+
+Design Philosophy:
+- Cutting-edge luxury aesthetics
+- Micro-animations everywhere
+- Premium feel with performance
+- Mobile-first responsive design
+```
+
+---
+
+## 📄 PAGE REQUIREMENTS
+
+### **1. HOME PAGE** (`app/routes/_index.jsx`)
+
+#### **Sections Required:**
+
+**A. Hero Section**
+- Full-viewport hero with video/animated background
+- Headline: "Timeless Luxury, Modern Precision"
+- CTA: "Explore Collection" → Links to `/collections/all`
+- Floating product images with parallax effect
+- Trust indicators: Free Shipping, 60-Day Returns, 5-Year Warranty
+
+**B. Featured Collections Carousel**
+- Display all 8 collections dynamically from Shopify
+- Each card shows:
+  - Collection featured image
+  - Collection title
+  - Product count
+  - "Shop Now" CTA
+- Smooth horizontal scroll with snap points
+- Auto-play with pause on hover
+
+**C. Best Sellers Grid**
+- Query top 8 products (by sales or manual tag)
+- Product cards with:
+  - Hover zoom effect
+  - Quick view button
+  - Add to wishlist icon
+  - Price with compare-at-price
+  - Star rating (4.8 stars)
+  - "Limited Edition" badge if tagged
+- Load more button (pagination)
+
+**D. Value Propositions**
+- 4-column grid (responsive to 2 on tablet, 1 on mobile)
+- Icons: Shield, Package, RotateCcw, Award
+- Animated on scroll (fade-in with stagger)
+
+**E. Testimonials Carousel**
+- 3 featured customer reviews
+- 5-star ratings
+- Customer name + location
+- Auto-rotate every 5 seconds
+
+**F. Instagram Feed**
+- 6 latest posts from @vastara (or placeholder)
+- Grid layout with hover overlay
+- "Follow Us" CTA
+
+**G. Newsletter Signup**
+- Email capture form
+- "Get 10% Off Your First Order"
+- Klaviyo integration ready (form action)
+
+**H. Footer**
+- Multi-column layout:
+  - Shop (Collections links)
+  - Support (FAQs, Contact, Returns)
+  - Company (About, Blog, Careers)
+  - Legal (Privacy, Terms, Shipping)
+- Social media icons
+- Payment method icons
+- Copyright notice
+
+---
+
+### **2. COLLECTIONS PAGE** (`app/routes/collections.$handle.jsx`)
+
+#### **Features Required:**
+
+**A. Collection Header**
+- Collection title (dynamic from Shopify)
+- Collection description (if exists)
+- Breadcrumb: Home > Collections > [Collection Name]
+- Product count display
+- Featured collection image as hero banner
+
+**B. Filtering & Sorting**
+- **Filters (Sidebar - Desktop, Drawer - Mobile):**
+  - Price range slider (min-max from collection)
+  - Product type (automatic from Shopify)
+  - Vendor/Brand
+  - Case size (if metafield exists)
+  - Movement type (if metafield exists)
+  - Water resistance (if metafield exists)
+  - Availability (In Stock / Out of Stock)
+  - Color options
+  
+- **Sort Options:**
+  - Featured (default)
+  - Best Selling
+  - Price: Low to High
+  - Price: High to Low
+  - Alphabetically: A-Z
+  - Alphabetically: Z-A
+  - Date: New to Old
+  - Date: Old to New
+
+**C. Product Grid**
+- Responsive grid: 4 cols (desktop), 3 cols (tablet), 2 cols (mobile)
+- Each product card:
+  - Primary image with hover → secondary image swap
+  - Quick view button (opens modal)
+  - Add to wishlist icon (top-right)
+  - Product title
+  - Vendor name
+  - Price + compare-at-price (if exists)
+  - Star rating
+  - Color swatches (if variants have color)
+  - "Add to Cart" button on hover (if single variant)
+  - Sale badge (if on sale)
+  - New arrival badge (if recent)
+  - Low stock warning (if < 5 items)
+
+**D. Pagination**
+- Load more button (append products)
+- Show "X of Y products" counter
+- Infinite scroll option (toggle)
+
+**E. Empty State**
+- If no products match filters
+- "No products found" message
+- "Clear all filters" CTA
+- Suggested collections
+
+**F. Performance**
+- Lazy load product images
+- Virtualized list for 500+ products
+- Optimistic UI updates for filters
+- URL state management (filters persist on back/forward)
+
+---
+
+### **3. EXISTING PRODUCT PAGE** (`app/routes/products.$handle.jsx`)
+
+**Status:** ✅ COMPLETE - Already built with all features
+
+**What Cursor Should DO:**
+- Read and understand the existing structure
+- Ensure GraphQL queries are consistent with Home & Collections
+- Add any missing Shopify Storefront API fields if needed
+- Verify multi-currency support works
+- Test with actual Shopify product data
+
+---
+
+## 🔌 SHOPIFY INTEGRATION
+
+### **Storefront API Configuration**
+
+**Required in `shopify.server.js`:**
+```javascript
+export function createStorefrontClient({
+  storeDomain: 'your-store.myshopify.com',
+  storefrontAccessToken: process.env.SHOPIFY_STOREFRONT_API_TOKEN,
+  apiVersion: '2024-10',
+  markets: ['US', 'GB', 'CA', 'AU'],
+  defaultLocale: 'EN',
+  multipass: true,
+});
+```
+
+### **GraphQL Queries Needed:**
+
+**Home Page:**
+- `GET_COLLECTIONS` - Fetch all 8 collections with images
+- `GET_FEATURED_PRODUCTS` - Top sellers or tagged products
+- `GET_PRODUCT_RECOMMENDATIONS` - For you might like section
+
+**Collections Page:**
+- `GET_COLLECTION_BY_HANDLE` - Collection details + products
+- `GET_COLLECTION_FILTERS` - Available filters (price range, types, etc.)
+- `GET_PRODUCTS_IN_COLLECTION` - Paginated products with filtering
+
+**Product Page:**
+- Already exists ✅
+
+### **Environment Variables Required:**
+```env
+SHOPIFY_STORE_DOMAIN=your-store.myshopify.com
+SHOPIFY_STOREFRONT_API_TOKEN=your_token_here
+SHOPIFY_ADMIN_API_TOKEN=your_admin_token (optional)
+SESSION_SECRET=your_session_secret
+PUBLIC_STORE_URL=https://your-vercel-app.vercel.app
+```
+
+---
+
+## 🚀 VERCEL DEPLOYMENT
+
+### **Configuration File:** `vercel.json`
+```json
+{
+  "buildCommand": "npm run build",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install",
+  "framework": "remix",
+  "outputDirectory": "build/client",
+  "routes": [
+    { "src": "/build/(.*)", "dest": "/build/$1" },
+    { "src": "/(.*)", "dest": "/index.html" }
+  ],
+  "env": {
+    "SHOPIFY_STORE_DOMAIN": "@shopify-store-domain",
+    "SHOPIFY_STOREFRONT_API_TOKEN": "@shopify-storefront-token"
+  }
+}
+```
+
+### **Deployment Steps for Cursor to Document:**
+
+1. **Connect GitHub to Vercel:**
+   - Import project from https://github.com/andreajoa/ABC
+   - Auto-detect Remix framework
+   - Add environment variables in Vercel dashboard
+
+2. **Environment Variables in Vercel:**
+   - Navigate to Project Settings > Environment Variables
+   - Add all Shopify credentials
+   - Apply to Production, Preview, and Development
+
+3. **Custom Domain (Shopify Store Domain):**
+   - In Vercel: Settings > Domains > Add Domain
+   - Add your Shopify store domain or subdomain
+   - Update DNS records as instructed
+   - Or use subdomain: `shop.yourdomain.com`
+
+4. **Hydrogen Oxygen Alternative:**
+   - Since deploying to Vercel (not Shopify Oxygen)
+   - Ensure all Hydrogen features work without Oxygen
+   - Use Remix adapters for Vercel
+
+---
+
+## 📁 PROJECT STRUCTURE
+
+```
+ABC/
+├── app/
+│   ├── routes/
+│   │   ├── _index.jsx                    ← HOME PAGE (BUILD THIS)
+│   │   ├── collections.$handle.jsx        ← COLLECTIONS (BUILD THIS)
+│   │   ├── products.$handle.jsx           ← PRODUCT PAGE (EXISTS ✅)
+│   │   ├── cart.jsx                       ← CART PAGE (BUILD THIS)
+│   │   └── search.jsx                     ← SEARCH PAGE (OPTIONAL)
+│   ├── components/
+│   │   ├── layout/
+│   │   │   ├── Header.jsx                 ← Global header with nav
+│   │   │   ├── Footer.jsx                 ← Global footer
+│   │   │   └── Navigation.jsx             ← Mega menu
+│   │   ├── product/
+│   │   │   ├── ProductCard.jsx            ← Reusable product card
+│   │   │   ├── ProductGrid.jsx            ← Grid layout
+│   │   │   ├── QuickView.jsx              ← Quick view modal
+│   │   │   └── WishlistButton.jsx         ← Wishlist toggle
+│   │   ├── collection/
+│   │   │   ├── CollectionCard.jsx         ← Collection preview
+│   │   │   ├── FilterSidebar.jsx          ← Filtering UI
+│   │   │   └── SortDropdown.jsx           ← Sort options
+│   │   └── home/
+│   │       ├── HeroSection.jsx            ← Homepage hero
+│   │       ├── FeaturedCollections.jsx    ← Collections carousel
+│   │       ├── BestSellers.jsx            ← Top products
+│   │       └── Testimonials.jsx           ← Reviews carousel
+│   ├── lib/
+│   │   ├── shopify.server.js              ← Shopify client config
+│   │   ├── queries.js                     ← All GraphQL queries
+│   │   └── utils.js                       ← Helper functions
+│   ├── styles/
+│   │   └── app.css                        ← Global styles + Tailwind
+│   └── root.jsx                           ← Root layout
+├── public/
+│   ├── favicon.ico
+│   └── images/
+│       └── (static assets)
+├── .env                                   ← Environment variables
+├── .gitignore
+├── package.json
+├── remix.config.js
+├── tailwind.config.js
+├── vercel.json                            ← Vercel deployment config
+└── README.md
+```
+
+---
+
+## 🎨 DESIGN SPECIFICATIONS
+
+### **Animations & Interactions:**
+
+**Home Page:**
+- Hero: Ken Burns effect on background
+- Collections: Slide-in carousel with momentum scrolling
+- Products: Scale on hover (1.05x), shadow elevation
+- Testimonials: Fade cross-dissolve transition
+- Scroll animations: Intersection Observer with stagger
+
+**Collections Page:**
+- Filter sidebar: Slide from left (desktop), bottom sheet (mobile)
+- Product grid: Skeleton loading → fade-in when loaded
+- Image hover: Crossfade to second image (300ms)
+- Add to cart: Ripple effect on button
+- Page transitions: Smooth fade between pages
+
+**Product Page:**
+- Already implemented ✅
+
+### **Performance Targets:**
+- Lighthouse Score: 95+ (Performance, SEO, Accessibility)
+- First Contentful Paint: < 1.5s
+- Time to Interactive: < 3.5s
+- Largest Contentful Paint: < 2.5s
+- Cumulative Layout Shift: < 0.1
+
+### **Responsive Breakpoints:**
+```css
+sm: 640px   /* Mobile landscape */
+md: 768px   /* Tablet */
+lg: 1024px  /* Desktop */
+xl: 1280px  /* Large desktop */
+2xl: 1536px /* Extra large */
+```
+
+---
+
+## 🛒 CART & CHECKOUT
+
+### **Cart Page Requirements:**
+- Mini cart drawer (slide from right)
+- Cart page at `/cart`
+- Line items with:
+  - Product image + title
+  - Variant details
+  - Quantity selector (+/-)
+  - Remove button
+  - Line total
+- Cart summary:
+  - Subtotal
+  - Estimated shipping
+  - Taxes (if applicable)
+  - Total
+- Promo code input
+- Checkout CTA → Redirects to Shopify checkout
+- Empty cart state with "Continue Shopping" CTA
+
+---
+
+## 🔍 SEARCH FUNCTIONALITY
+
+### **Search Page** (`app/routes/search.jsx`)
+- Global search bar in header
+- Search results page with:
+  - Products matching query
+  - Collections matching query
+  - Filters (same as collections page)
+  - Sort options
+  - "Did you mean?" suggestions
+  - Popular searches
+  - No results state
+
+---
+
+## 📊 ANALYTICS & TRACKING
+
+**Required Integrations:**
+- Google Analytics 4 (GA4)
+- Meta Pixel (Facebook)
+- TikTok Pixel
+- Shopify Analytics (built-in)
+- Hotjar or Microsoft Clarity (heatmaps)
+
+**Events to Track:**
+- Page views
+- Product views
+- Add to cart
+- Begin checkout
+- Purchase (via Shopify)
+- Search queries
+- Collection views
+- Wishlist additions
+
+---
+
+## 🔒 SECURITY & COMPLIANCE
+
+- GDPR cookie consent banner
+- Privacy policy link
+- Terms of service
+- Secure HTTPS only
+- CSP headers configured
+- Rate limiting on API routes
+- Input sanitization
+
+---
+
+## ✅ ACCEPTANCE CRITERIA
+
+### **Home Page:**
+- [ ] Hero section loads with animation
+- [ ] All 8 collections display correctly
+- [ ] Featured products load from Shopify
+- [ ] All CTAs link to correct pages
+- [ ] Newsletter form submits successfully
+- [ ] Mobile responsive (tested on iOS & Android)
+- [ ] Page loads in < 2 seconds
+
+### **Collections Page:**
+- [ ] Displays all products in collection
+- [ ] Filters work and update URL
+- [ ] Sort options function correctly
+- [ ] Pagination/infinite scroll works
+- [ ] Product cards match design
+- [ ] Quick view modal opens product details
+- [ ] Handles 500+ products without lag
+- [ ] Filter state persists on browser back
+
+### **Product Page:**
+- [ ] Existing page works with new data
+- [ ] All variants selectable
+- [ ] Add to cart functions
+- [ ] Recommended products display
+- [ ] Image gallery works on mobile
+- [ ] Reviews section shows (when integrated)
+
+### **Deployment:**
+- [ ] Builds successfully on Vercel
+- [ ] All environment variables configured
+- [ ] Custom domain connected
+- [ ] HTTPS enabled
+- [ ] 404 page configured
+- [ ] Redirects work correctly
+
+---
+
+## 🚧 OUT OF SCOPE (Future Phases)
+
+- Customer accounts/login (use Shopify's)
+- Blog/content pages
+- Multi-language support (future)
+- Custom checkout (Shopify Plus only)
+- Live chat integration
+- Advanced product recommendations (AI)
+- Augmented reality (AR) try-on
+
+---
+
+## 📝 DEVELOPER NOTES FOR CURSOR
+
+### **Getting Started:**
+```bash
+# Clone repository
+git clone https://github.com/andreajoa/ABC.git
+cd ABC
+
+# Install dependencies
+npm install
+
+# Create .env file with Shopify credentials
+cp .env.example .env
+
+# Start development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Deploy to Vercel
+vercel --prod
+```
+
+### **Key Files to Create:**
+1. `app/routes/_index.jsx` - Home page
+2. `app/routes/collections.$handle.jsx` - Collections page
+3. `app/lib/shopify.server.js` - Shopify client
+4. `app/lib/queries.js` - All GraphQL queries
+5. `app/components/` - Reusable components
+6. `vercel.json` - Deployment config
+
+### **Existing File to Reference:**
+- `app/routes/products.$handle.jsx` ✅ - Use as reference for:
+  - GraphQL query structure
+  - Component patterns
+  - Styling conventions
+  - State management
+  - Shopify data handling
+
+### **Code Quality Requirements:**
+- TypeScript types for all Shopify data
+- JSDoc comments for all functions
+- Error boundaries for all routes
+- Loading states for async operations
+- Accessible (WCAG 2.1 AA compliant)
+- SEO meta tags on every page
+- Structured data (JSON-LD) where applicable
+
+---
+
+## 🎯 SUCCESS METRICS
+
+**Launch Goals:**
+- Site live on Vercel within 1 week
+- Zero critical bugs in production
+- Page speed score > 90
+- Conversion rate matches or exceeds current Shopify theme
+- Mobile traffic converts at same rate as desktop
+- Cart abandonment rate < 70%
+
+---
+
+## 📞 SUPPORT & RESOURCES
+
+**Documentation:**
+- Shopify Hydrogen Docs: https://shopify.dev/docs/api/hydrogen
+- Remix Documentation: https://remix.run/docs
+- Shopify Storefront API: https://shopify.dev/docs/api/storefront
+
+**Troubleshooting:**
+- Check Vercel build logs for errors
+- Verify Shopify API tokens have correct permissions
+- Test locally before deploying
+- Use Shopify's GraphiQL explorer for query testing
+
+---
+
+## 🏁 FINAL DELIVERABLES
+
+1. ✅ Fully functional Home page
+2. ✅ Fully functional Collections page
+3. ✅ Integrated Product page (existing)
+4. ✅ Working Cart system
+5. ✅ Deployed to Vercel
+6. ✅ Connected to Shopify store
+7. ✅ All 500+ products accessible
+8. ✅ All 8 collections browsable
+9. ✅ Mobile responsive
+10. ✅ Performance optimized
+
+---
+
+**Document Version:** 1.0  
+**Created:** December 2024  
+**Status:** Ready for Development  
+
+**Next Steps:** Share this PRD with Cursor AI to begin implementation.
