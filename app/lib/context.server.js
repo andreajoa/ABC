@@ -1,21 +1,18 @@
 import {createStorefrontClient} from './shopify.server';
-import {createWithCache, CacheLong} from '@shopify/hydrogen';
 
 /**
  * Create the Remix context with Shopify integration
  */
-export async function createContext(request, env, executionContext) {
-  const waitUntil = executionContext?.waitUntil || (() => {});
-  const cache = await caches.open('hydrogen');
-
+export async function createContext(request) {
   const storefront = createStorefrontClient({
     request,
-    cache,
-    waitUntil,
   });
 
   return {
     storefront,
-    env,
+    env: {
+      SHOPIFY_STORE_DOMAIN: process.env.SHOPIFY_STORE_DOMAIN,
+      PUBLIC_STORE_URL: process.env.PUBLIC_STORE_URL,
+    },
   };
 }
