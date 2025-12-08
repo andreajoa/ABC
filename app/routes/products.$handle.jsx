@@ -31,6 +31,10 @@ import {
   Eye,
   Clock,
   Zap,
+  CreditCard,
+  Truck,
+  HelpCircle,
+  MessageCircle,
 } from 'lucide-react';
 import {PRODUCT_QUERY, RECOMMENDED_PRODUCTS_QUERY} from '../lib/queries';
 
@@ -91,8 +95,8 @@ export const meta = ({data}) => {
         },
         aggregateRating: {
           '@type': 'AggregateRating',
-          ratingValue: '4.8',
-          reviewCount: '127',
+          ratingValue: '4.9',
+          reviewCount: '8000',
         },
       },
     },
@@ -146,12 +150,78 @@ export async function loader({params, context, request}) {
   }
 }
 
-// Luxury trust badges
-const trustBadges = [
-  {icon: Shield, label: 'Authenticity Guaranteed', subtitle: 'Certificate included'},
-  {icon: Package, label: 'Premium Gift Box', subtitle: 'Luxury packaging'},
-  {icon: RotateCcw, label: '60-Day Returns', subtitle: 'Risk-free purchase'},
-  {icon: Award, label: '5-Year Warranty', subtitle: 'Global coverage'},
+// Sample customer reviews
+const customerReviews = [
+  {
+    name: 'Sarah L.',
+    verified: true,
+    rating: 5,
+    text: 'Absolutely love this watch! It\'s the perfect blend of classic and modern. Goes with everything in my wardrobe.',
+    timeAgo: '2 days ago',
+  },
+  {
+    name: 'Michael R.',
+    verified: true,
+    rating: 5,
+    text: 'Best watch purchase I\'ve made. The quality is outstanding and it looks even better in person.',
+    timeAgo: '5 days ago',
+  },
+  {
+    name: 'Emma T.',
+    verified: true,
+    rating: 5,
+    text: 'So versatile! I wear it to work, on weekends, and even to formal events. Highly recommend!',
+    timeAgo: '1 week ago',
+  },
+  {
+    name: 'David K.',
+    verified: true,
+    rating: 5,
+    text: 'The chronograph feature is really useful. Great value for money and looks premium.',
+    timeAgo: '1 week ago',
+  },
+  {
+    name: 'Lisa M.',
+    verified: true,
+    rating: 5,
+    text: 'Comfortable strap, easy to read, and the design is timeless. Will definitely buy another one.',
+    timeAgo: '2 weeks ago',
+  },
+  {
+    name: 'James P.',
+    verified: true,
+    rating: 5,
+    text: 'Perfect everyday watch. The build quality is impressive and it keeps excellent time.',
+    timeAgo: '2 weeks ago',
+  },
+];
+
+// FAQ questions
+const faqQuestions = [
+  {
+    question: 'Is this watch suitable for everyday wear?',
+    answer: 'Yes! The Vastara ADDIESDIVE is designed for everyday wear. Its classic design works for both casual and formal occasions.',
+  },
+  {
+    question: 'What makes the Vastara ADDIESDIVE watch stand out?',
+    answer: 'Our watch combines timeless design with modern functionality. The chronograph feature, premium materials, and attention to detail make it stand out.',
+  },
+  {
+    question: 'Can I wear this watch for both casual and formal events?',
+    answer: 'Absolutely! The versatile design transitions seamlessly from day to night, casual to formal.',
+  },
+  {
+    question: 'Is the strap comfortable for long periods?',
+    answer: 'Yes, the premium leather strap is designed for all-day comfort and durability.',
+  },
+  {
+    question: 'Will this watch truly elevate my personal style?',
+    answer: 'Definitely! The classic chronograph design adds sophistication to any outfit and complements your personal style.',
+  },
+  {
+    question: 'What if I\'m not sure about the chronograph features?',
+    answer: 'The chronograph is easy to use and adds functionality without complexity. Our customer support team can help you learn how to use it.',
+  },
 ];
 
 export default function Product() {
@@ -173,44 +243,12 @@ export default function Product() {
   // State management
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
-  const [showSpecs, setShowSpecs] = useState(false);
   const [isWishlisted, setIsWishlisted] = useState(false);
-  const [showGalleryModal, setShowGalleryModal] = useState(false);
-  const [showMoreOptions, setShowMoreOptions] = useState(false);
+  const [expandedFaq, setExpandedFaq] = useState(null);
 
   // Get images
   const productImages = product.media?.nodes || product.images?.edges?.map(({node}) => node) || [];
   const currentImage = productImages[selectedImage] || selectedVariant?.image;
-
-  // Parse metafields
-  const getMetafield = (key) => {
-    const metafield = product.metafields?.find((m) => m.key === key);
-    try {
-      return metafield?.value ? JSON.parse(metafield.value) : null;
-    } catch {
-      return metafield?.value || null;
-    }
-  };
-
-  const specifications = getMetafield('specifications') || {
-    'Case Diameter': '42mm',
-    'Movement': 'Automatic',
-    'Water Resistance': '100m',
-    'Case Material': '316L Stainless Steel',
-    'Crystal': 'Sapphire',
-    'Band Material': 'Stainless Steel',
-    'Clasp Type': 'Deployment',
-    'Power Reserve': '42 hours',
-  };
-
-  const features = getMetafield('features') || [
-    'Swiss-Inspired Automatic Movement',
-    'Sapphire Crystal Glass',
-    'Screw-Down Crown',
-    'Luminous Hands & Markers',
-    '100M Water Resistance',
-    'Premium Gift Packaging',
-  ];
 
   // Calculate savings
   const price = parseFloat(selectedVariant?.price?.amount || 0);
@@ -218,116 +256,43 @@ export default function Product() {
   const savings = comparePrice > price ? comparePrice - price : 0;
   const savingsPercent = comparePrice > price ? Math.round(((comparePrice - price) / comparePrice) * 100) : 0;
 
-  // Social proof data
-  const viewersNow = Math.floor(Math.random() * 20) + 15;
-  const purchasedToday = Math.floor(Math.random() * 8) + 5;
+  // Get color options (filter for Color variant)
+  const colorOption = productOptions.find(opt => opt.name.toLowerCase() === 'color');
+  const colorVariants = colorOption?.values || [];
 
   return (
-    <div className="min-h-screen bg-cream">
-      {/* Breadcrumb */}
-      <nav className="bg-white border-b border-neutral-light/20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center gap-2 text-sm">
-            <Link to="/" className="text-neutral/60 hover:text-forest-green transition-colors">
-              Home
-            </Link>
-            <ChevronRight size={14} className="text-neutral-light" />
-            <Link to="/collections/watches" className="text-neutral/60 hover:text-forest-green transition-colors">
-              Luxury Watches
-            </Link>
-            <ChevronRight size={14} className="text-neutral-light" />
-            <span className="text-forest-green font-medium">{product.title}</span>
-          </div>
-        </div>
-      </nav>
-
-      {/* Social Proof Banner */}
-      <div className="gradient-forest text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-          <div className="flex items-center justify-center gap-6 text-sm flex-wrap">
-            <div className="flex items-center gap-2">
-              <Eye size={16} className="text-luxury-gold" />
-              <span><strong>{viewersNow}</strong> people viewing now</span>
-            </div>
-            <div className="h-4 w-px bg-white/30" />
-            <div className="flex items-center gap-2">
-              <TrendingUp size={16} className="text-luxury-gold" />
-              <span><strong>{purchasedToday}</strong> sold today</span>
-            </div>
-            <div className="h-4 w-px bg-white/30" />
-            <div className="flex items-center gap-2">
-              <Clock size={16} className="text-luxury-gold" />
-              <span>Limited Edition</span>
-            </div>
-          </div>
-        </div>
+    <div className="min-h-screen bg-white">
+      {/* Free Shipping Banner */}
+      <div className="bg-black text-white text-center py-2 text-sm">
+        Enjoy free shipping on all orders!
       </div>
 
-      {/* Main Product Grid */}
+      {/* Main Product Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
           
-          {/* Left Column - Gallery */}
-          <div className="lg:col-span-7 space-y-6">
+          {/* Left Column - Product Images */}
+          <div className="space-y-4">
             {/* Main Image */}
-            <div className="relative group">
-              <div className="aspect-square bg-white rounded-2xl overflow-hidden shadow-2xl border border-neutral-light/10">
-                <img
-                  src={currentImage?.url || currentImage?.image?.url}
-                  alt={currentImage?.altText || product.title}
-                  className="w-full h-full object-cover cursor-zoom-in"
-                  onClick={() => setShowGalleryModal(true)}
-                />
-                
-                {/* Sale Badge */}
-                {savings > 0 && (
-                  <div className="absolute top-6 right-6">
-                    <div className="gradient-gold text-white px-4 py-2 rounded-full shadow-lg">
-                      <div className="text-xs font-semibold">SAVE ${savings.toFixed(0)}</div>
-                      <div className="text-lg font-bold leading-none">{savingsPercent}% OFF</div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Limited Badge */}
-                <div className="absolute top-6 left-6">
-                  <div className="bg-forest-green text-luxury-gold px-4 py-2 rounded-full shadow-lg flex items-center gap-2">
-                    <Sparkles size={16} />
-                    <span className="text-sm font-semibold">Limited Edition</span>
-                  </div>
-                </div>
-
-                {/* Navigation Arrows */}
-                {productImages.length > 1 && (
-                  <>
-                    <button
-                      onClick={() => setSelectedImage((selectedImage - 1 + productImages.length) % productImages.length)}
-                      className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-3 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <ChevronLeft size={24} className="text-forest-green" />
-                    </button>
-                    <button
-                      onClick={() => setSelectedImage((selectedImage + 1) % productImages.length)}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-3 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <ChevronRight size={24} className="text-forest-green" />
-                    </button>
-                  </>
-                )}
-              </div>
+            <div className="relative aspect-square bg-white rounded-lg overflow-hidden">
+              <img
+                src={currentImage?.url || currentImage?.image?.url}
+                alt={currentImage?.altText || product.title}
+                className="w-full h-full object-cover"
+              />
             </div>
 
             {/* Thumbnail Gallery */}
             {productImages.length > 1 && (
-              <div className="grid grid-cols-6 gap-3">
-                {productImages.slice(0, 6).map((img, idx) => (
+              <div className="grid grid-cols-4 gap-3">
+                {productImages.slice(0, 4).map((img, idx) => (
                   <button
                     key={idx}
                     onClick={() => setSelectedImage(idx)}
-                    className={`aspect-square rounded-xl overflow-hidden border-2 transition-all ${
+                    className={`aspect-square rounded-lg overflow-hidden border-2 transition-all ${
                       selectedImage === idx
-                        ? 'border-luxury-gold shadow-lg scale-105'
-                        : 'border-neutral-light/20 hover:border-luxury-gold/50'
+                        ? 'border-pink-500 shadow-lg'
+                        : 'border-gray-200 hover:border-pink-300'
                     }`}
                   >
                     <img
@@ -340,321 +305,413 @@ export default function Product() {
               </div>
             )}
 
-            {/* Trust Badges - Desktop */}
-            <div className="hidden lg:grid grid-cols-2 gap-4 bg-white rounded-2xl p-6 shadow-lg border border-neutral-light/10">
-              {trustBadges.map((badge, idx) => {
-                const Icon = badge.icon;
-                return (
-                  <div key={idx} className="flex items-start gap-3">
-                    <div className="gradient-gold p-2.5 rounded-lg">
-                      <Icon size={20} className="text-white" />
-                    </div>
-                    <div>
-                      <div className="font-semibold text-forest-green">{badge.label}</div>
-                      <div className="text-sm text-neutral/60">{badge.subtitle}</div>
-                    </div>
-                  </div>
-                );
-              })}
+            {/* Feature Icons Bar */}
+            <div className="bg-gray-100 rounded-lg p-6 grid grid-cols-3 gap-4 text-center">
+              <div>
+                <div className="text-sm font-semibold text-gray-800 mb-1">Elevate your everyday style</div>
+              </div>
+              <div>
+                <div className="text-sm font-semibold text-gray-800 mb-1">Looks good with everything</div>
+              </div>
+              <div>
+                <div className="text-sm font-semibold text-gray-800 mb-1">Built to last, wear forever</div>
+              </div>
             </div>
           </div>
 
-          {/* Right Column - Product Info */}
-          <div className="lg:col-span-5 space-y-6">
-            {/* Brand & Title */}
-            <div>
-              <div className="flex items-center gap-3 mb-3 flex-wrap">
-                <span className="text-luxury-gold uppercase text-sm font-semibold tracking-wider">
-                  {product.vendor || 'VASTARA'}
-                </span>
-                <div className="flex items-center gap-1">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={14} className="fill-luxury-gold text-luxury-gold" />
-                  ))}
-                  <span className="text-sm text-neutral/60 ml-2">4.8 (127 reviews)</span>
-                </div>
+          {/* Right Column - Product Details */}
+          <div className="space-y-6">
+            {/* Rating & Reviews */}
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} size={16} className="fill-green-500 text-green-500" />
+                ))}
               </div>
-              <h1 className="font-heading text-4xl lg:text-5xl font-bold text-forest-green leading-tight mb-4">
-                {product.title}
-              </h1>
-              <p className="text-neutral/70 leading-relaxed">
-                {product.description?.substring(0, 150)}...
-              </p>
+              <span className="text-green-600 font-semibold text-sm">4.9/5 stars</span>
+              <span className="text-gray-500 text-sm">based on 8,000+ reviews</span>
+              <span className="text-gray-400 text-xs">Trustpilot</span>
             </div>
+
+            {/* Product Title */}
+            <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 leading-tight">
+              {product.title}: The only watch you'll ever need.
+            </h1>
 
             {/* Price */}
-            <div className="gradient-forest rounded-2xl p-6 text-white">
-              <div className="flex items-baseline gap-3 mb-2 flex-wrap">
-                <span className="font-heading text-5xl font-bold text-luxury-gold">
-                  {selectedVariant?.price?.currencyCode} ${price.toFixed(2)}
-                </span>
-                {comparePrice > price && (
-                  <>
-                    <span className="text-2xl text-white/50 line-through">
-                      ${comparePrice.toFixed(2)}
-                    </span>
-                    <span className="bg-luxury-gold text-forest-green px-3 py-1 rounded-full text-sm font-bold">
-                      SAVE {savingsPercent}%
-                    </span>
-                  </>
-                )}
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <Zap size={16} className="text-luxury-gold" />
-                <span>Or 4 interest-free payments of ${(price / 4).toFixed(2)}</span>
-              </div>
+            <div className="flex items-baseline gap-3">
+              <span className="text-4xl font-bold text-gray-900">${price.toFixed(2)}</span>
+              {comparePrice > price && (
+                <>
+                  <span className="text-2xl text-gray-400 line-through">${comparePrice.toFixed(2)}</span>
+                  <span className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm font-bold">
+                    SAVE ${savings.toFixed(0)}
+                  </span>
+                </>
+              )}
             </div>
 
-            {/* Key Features */}
-            <div className="bg-white rounded-2xl p-6 shadow-lg border border-neutral-light/10">
-              <h3 className="font-heading text-xl font-semibold text-forest-green mb-4">
-                Signature Features
-              </h3>
-              <ul className="space-y-3">
-                {features.slice(0, 4).map((feature, idx) => (
-                  <li key={idx} className="flex items-start gap-3">
-                    <Check size={18} className="text-luxury-gold flex-shrink-0 mt-0.5" />
-                    <span className="text-neutral">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            {/* Description */}
+            <p className="text-lg text-gray-600 leading-relaxed">
+              Elevate your everyday style with our classic chronograph. This watch is built to last, wear forever, and is the perfect accessory for any occasion.
+            </p>
 
-            {/* Variant Selector */}
-            {productOptions.map((option) => (
-              <div key={option.name} className="space-y-3">
-                <label className="block font-semibold text-forest-green">
-                  {option.name}: <span className="font-normal text-neutral/70">{option.selectedValue}</span>
-                </label>
-                <div className="flex flex-wrap gap-3">
-                  {option.values.map((value) => (
+            {/* Color Selection */}
+            {colorOption && (
+              <div className="space-y-3">
+                <label className="block font-semibold text-gray-900">Color</label>
+                <div className="flex gap-3">
+                  {colorVariants.map((variant) => (
                     <Link
-                      key={value.value}
-                      to={value.to}
+                      key={variant.value}
+                      to={variant.to}
                       preventScrollReset
-                      className={`px-6 py-3 border-2 rounded-xl font-medium transition-all ${
-                        value.isActive
-                          ? 'border-luxury-gold bg-luxury-gold text-white shadow-lg'
-                          : value.isAvailable
-                          ? 'border-neutral-light/30 text-forest-green hover:border-luxury-gold hover:shadow-md'
-                          : 'border-neutral-light/20 text-neutral/30 cursor-not-allowed'
+                      className={`px-6 py-3 border-2 rounded-lg font-medium transition-all ${
+                        variant.isActive
+                          ? 'border-pink-500 bg-pink-50 text-pink-700'
+                          : 'border-gray-300 text-gray-700 hover:border-pink-300'
                       }`}
                     >
-                      {value.value}
+                      {variant.value}
                     </Link>
                   ))}
                 </div>
               </div>
-            ))}
-
-            {/* Quantity */}
-            <div className="space-y-3">
-              <label className="block font-semibold text-forest-green">Quantity</label>
-              <div className="flex items-center gap-4 flex-wrap">
-                <div className="flex items-center border-2 border-neutral-light/30 rounded-xl overflow-hidden">
-                  <button
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="px-5 py-3 hover:bg-cream transition-colors"
-                  >
-                    <Minus size={18} className="text-forest-green" />
-                  </button>
-                  <span className="px-6 py-3 border-x-2 border-neutral-light/30 font-semibold text-forest-green">
-                    {quantity}
-                  </span>
-                  <button
-                    onClick={() => setQuantity(quantity + 1)}
-                    className="px-5 py-3 hover:bg-cream transition-colors"
-                  >
-                    <Plus size={18} className="text-forest-green" />
-                  </button>
-                </div>
-                {selectedVariant?.availableForSale && (
-                  <span className="flex items-center gap-2 text-sm text-green-600">
-                    <div className="w-2 h-2 bg-green-600 rounded-full animate-pulse" />
-                    In Stock - Ships Today
-                  </span>
-                )}
-              </div>
-            </div>
-
-            {/* Add to Cart Buttons */}
-            <div className="space-y-3">
-              <button
-                disabled={!selectedVariant?.availableForSale}
-                className="w-full gradient-gold text-white py-5 rounded-xl font-bold text-lg shadow-xl hover:shadow-2xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
-              >
-                <ShoppingBag size={22} />
-                {selectedVariant?.availableForSale ? 'Add to Cart' : 'Out of Stock'}
-              </button>
-
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  onClick={() => setIsWishlisted(!isWishlisted)}
-                  className={`py-3 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 ${
-                    isWishlisted
-                      ? 'bg-red-50 text-red-600 border-2 border-red-200'
-                      : 'bg-white text-forest-green border-2 border-neutral-light/30 hover:border-luxury-gold'
-                  }`}
-                >
-                  <Heart size={20} className={isWishlisted ? 'fill-current' : ''} />
-                  Wishlist
-                </button>
-                <button className="py-3 rounded-xl font-semibold bg-white text-forest-green border-2 border-neutral-light/30 hover:border-luxury-gold transition-all flex items-center justify-center gap-2">
-                  <Share2 size={20} />
-                  Share
-                </button>
-              </div>
-            </div>
-
-            {/* View More Options */}
-            {recommendedProducts.length > 0 && (
-              <button
-                onClick={() => setShowMoreOptions(true)}
-                className="w-full bg-forest-green-light text-white py-4 rounded-xl font-semibold hover:bg-forest-green transition-all flex items-center justify-center gap-2"
-              >
-                <Sparkles size={20} />
-                Explore Similar Timepieces
-              </button>
             )}
 
-            {/* Trust Badges - Mobile */}
-            <div className="lg:hidden grid grid-cols-2 gap-4 bg-white rounded-2xl p-6 shadow-lg border border-neutral-light/10">
-              {trustBadges.map((badge, idx) => {
-                const Icon = badge.icon;
-                return (
-                  <div key={idx} className="flex items-start gap-3">
-                    <div className="gradient-gold p-2.5 rounded-lg">
-                      <Icon size={18} className="text-white" />
-                    </div>
-                    <div>
-                      <div className="font-semibold text-forest-green text-sm">{badge.label}</div>
-                      <div className="text-xs text-neutral/60">{badge.subtitle}</div>
-                    </div>
-                  </div>
-                );
-              })}
+            {/* Add to Cart Button */}
+            <button
+              disabled={!selectedVariant?.availableForSale}
+              className="w-full bg-pink-500 hover:bg-pink-600 text-white py-4 rounded-lg font-bold text-lg shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              ADD TO CART
+            </button>
+
+            {/* Payment Methods */}
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-sm text-gray-600">We accept:</span>
+              <div className="flex items-center gap-2">
+                <CreditCard size={20} className="text-gray-400" />
+                <span className="text-xs text-gray-500">Visa, Mastercard, Amex, PayPal, Shop Pay, Google Pay, Apple Pay</span>
+              </div>
+            </div>
+
+            {/* Trust Boxes */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                <div className="font-semibold text-gray-900 mb-1">Try risk-free for 30 days</div>
+                <div className="text-sm text-gray-600">Free returns & exchanges</div>
+              </div>
+              <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                <div className="font-semibold text-gray-900 mb-1">Speedy delivery</div>
+                <div className="text-sm text-gray-600">Estimated 3-5 business days</div>
+              </div>
+            </div>
+
+            {/* Expandable FAQ Sections */}
+            <div className="space-y-2">
+              <button
+                onClick={() => setExpandedFaq(expandedFaq === 0 ? null : 0)}
+                className="w-full text-left p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors flex items-center justify-between"
+              >
+                <span className="font-medium text-gray-900">Will this watch match my everyday style and special occasions?</span>
+                {expandedFaq === 0 ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+              </button>
+              {expandedFaq === 0 && (
+                <div className="p-4 bg-gray-50 rounded-lg text-gray-700">
+                  Yes! The versatile design works perfectly for both everyday wear and special occasions.
+                </div>
+              )}
+
+              <button
+                onClick={() => setExpandedFaq(expandedFaq === 1 ? null : 1)}
+                className="w-full text-left p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors flex items-center justify-between"
+              >
+                <span className="font-medium text-gray-900">Is the Vastara ADDIESDIVE watch built to last?</span>
+                {expandedFaq === 1 ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+              </button>
+              {expandedFaq === 1 && (
+                <div className="p-4 bg-gray-50 rounded-lg text-gray-700">
+                  Absolutely! We use premium materials and expert craftsmanship to ensure your watch lasts for years.
+                </div>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Product Details Section */}
-        <div className="mt-16 space-y-8">
-          {/* Description */}
-          <div className="bg-white rounded-2xl p-8 lg:p-12 shadow-lg border border-neutral-light/10">
-            <h2 className="font-heading text-3xl font-bold text-forest-green mb-6">
-              The Art of Timekeeping
-            </h2>
-            <div
-              className="prose prose-lg max-w-none text-neutral/80 leading-relaxed"
-              dangerouslySetInnerHTML={{__html: product.descriptionHtml}}
-            />
+        {/* Feature Sections */}
+        <div className="mt-20 space-y-20">
+          {/* Your watch, your way */}
+          <div>
+            <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">Your watch, your way</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="text-center">
+                <div className="aspect-square bg-gray-100 rounded-lg mb-4 overflow-hidden">
+                  <img
+                    src={productImages[0]?.url || productImages[0]?.image?.url}
+                    alt="Set the time & date"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <h3 className="font-semibold text-lg mb-2">Set the time & date</h3>
+                <p className="text-gray-600">Easy-to-use crown for precise time and date setting.</p>
+              </div>
+              <div className="text-center">
+                <div className="aspect-square bg-gray-100 rounded-lg mb-4 overflow-hidden">
+                  <img
+                    src={productImages[1]?.url || productImages[1]?.image?.url || productImages[0]?.url}
+                    alt="Master the stopwatch"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <h3 className="font-semibold text-lg mb-2">Master the stopwatch</h3>
+                <p className="text-gray-600">Professional chronograph functionality at your fingertips.</p>
+              </div>
+              <div className="text-center">
+                <div className="aspect-square bg-gray-100 rounded-lg mb-4 overflow-hidden">
+                  <img
+                    src={productImages[2]?.url || productImages[2]?.image?.url || productImages[0]?.url}
+                    alt="Wear it anywhere"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <h3 className="font-semibold text-lg mb-2">Wear it anywhere</h3>
+                <p className="text-gray-600">From office to weekend adventures, this watch adapts.</p>
+              </div>
+            </div>
           </div>
 
-          {/* Specifications */}
-          <div className="bg-white rounded-2xl shadow-lg border border-neutral-light/10 overflow-hidden">
-            <button
-              onClick={() => setShowSpecs(!showSpecs)}
-              className="w-full px-8 py-6 flex items-center justify-between text-left hover:bg-cream/50 transition-colors"
-            >
-              <h2 className="font-heading text-3xl font-bold text-forest-green">
-                Technical Specifications
-              </h2>
-              {showSpecs ? (
-                <ChevronUp size={32} className="text-luxury-gold" />
-              ) : (
-                <ChevronDown size={32} className="text-luxury-gold" />
-              )}
-            </button>
-            {showSpecs && (
-              <div className="px-8 pb-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-                  {Object.entries(specifications).map(([key, value]) => (
-                    <div key={key} className="flex justify-between items-center py-4 border-b border-neutral-light/20">
-                      <span className="font-semibold text-forest-green">{key}</span>
-                      <span className="text-neutral/70">{value}</span>
-                    </div>
-                  ))}
+          {/* Effortless style */}
+          <div className="bg-pink-50 rounded-2xl p-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+              <div>
+                <div className="grid grid-cols-2 gap-6">
+                  <div>
+                    <div className="text-2xl mb-2">✨</div>
+                    <h3 className="font-semibold mb-2">Effortless style</h3>
+                    <p className="text-sm text-gray-600">Timeless design that complements any outfit</p>
+                  </div>
+                  <div>
+                    <div className="text-2xl mb-2">⚙️</div>
+                    <h3 className="font-semibold mb-2">Precision engineering</h3>
+                    <p className="text-sm text-gray-600">Reliable movement for accurate timekeeping</p>
+                  </div>
+                  <div>
+                    <div className="text-2xl mb-2">🛡️</div>
+                    <h3 className="font-semibold mb-2">Built to last</h3>
+                    <p className="text-sm text-gray-600">Premium materials for years of wear</p>
+                  </div>
+                  <div>
+                    <div className="text-2xl mb-2">⏰</div>
+                    <h3 className="font-semibold mb-2">Your go-to timepiece</h3>
+                    <p className="text-sm text-gray-600">The watch you'll reach for every day</p>
+                  </div>
                 </div>
               </div>
-            )}
+              <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                <img
+                  src={productImages[0]?.url || productImages[0]?.image?.url}
+                  alt="Effortless style"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
           </div>
 
-          {/* Reviews Section */}
-          <div className="bg-white rounded-2xl p-8 lg:p-12 shadow-lg border border-neutral-light/10">
-            <h2 className="font-heading text-3xl font-bold text-forest-green mb-6">
-              Customer Reviews
-            </h2>
-            <div id="shopify-product-reviews" className="min-h-[200px]">
-              <p className="text-center text-neutral/50 py-12">
-                Reviews will appear here once integrated with Shopify review app
-              </p>
+          {/* Your Vastara, your way */}
+          <div>
+            <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">Your Vastara, your way</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {[1, 2, 3].map((num) => (
+                <div key={num} className="text-center">
+                  <div className="relative aspect-square bg-gray-100 rounded-lg mb-4 overflow-hidden">
+                    <img
+                      src={productImages[0]?.url || productImages[0]?.image?.url}
+                      alt={`Step ${num}`}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute top-4 left-4 bg-pink-500 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold">
+                      {num}
+                    </div>
+                  </div>
+                  <h3 className="font-semibold text-lg mb-2">
+                    {num === 1 && 'Set the time'}
+                    {num === 2 && 'Master the chronograph'}
+                    {num === 3 && 'Style & maintenance'}
+                  </h3>
+                  <p className="text-gray-600">
+                    {num === 1 && 'Easy time and date setting with the crown'}
+                    {num === 2 && 'Use the chronograph for timing events'}
+                    {num === 3 && 'Care instructions to keep it looking new'}
+                  </p>
+                </div>
+              ))}
             </div>
+          </div>
+
+          {/* Effortless style, every moment */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+              <img
+                src={productImages[0]?.url || productImages[0]?.image?.url}
+                alt="Effortless style"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div>
+              <h2 className="text-4xl font-bold text-gray-900 mb-6">Effortless style, every moment.</h2>
+              <p className="text-lg text-gray-600 mb-8 leading-relaxed">
+                The Vastara ADDIESDIVE combines classic elegance with modern functionality. Whether you're heading to the office or a weekend adventure, this watch seamlessly blends with your style.
+              </p>
+              <button className="bg-pink-500 hover:bg-pink-600 text-white px-8 py-4 rounded-lg font-bold text-lg shadow-lg hover:shadow-xl transition-all">
+                Claim your style
+              </button>
+            </div>
+          </div>
+
+          {/* Elevate your wrist */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <div>
+              <div className="space-y-6 mb-8">
+                <div className="flex items-start gap-4">
+                  <div className="text-2xl">✨</div>
+                  <div>
+                    <h3 className="font-semibold text-lg mb-1">Effortless style</h3>
+                    <p className="text-gray-600">Timeless design that works for every occasion</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-4">
+                  <div className="text-2xl">💎</div>
+                  <div>
+                    <h3 className="font-semibold text-lg mb-1">Built to impress</h3>
+                    <p className="text-gray-600">Premium materials and expert craftsmanship</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-4">
+                  <div className="text-2xl">⏰</div>
+                  <div>
+                    <h3 className="font-semibold text-lg mb-1">Master your day</h3>
+                    <p className="text-gray-600">Chronograph functionality for precision timing</p>
+                  </div>
+                </div>
+              </div>
+              <button className="bg-pink-500 hover:bg-pink-600 text-white px-8 py-4 rounded-lg font-bold text-lg shadow-lg hover:shadow-xl transition-all">
+                grab yours now
+              </button>
+            </div>
+            <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+              <img
+                src={productImages[0]?.url || productImages[0]?.image?.url}
+                alt="Elevate your wrist"
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Customer Reviews Section */}
+        <div className="mt-20">
+          <div className="bg-green-100 rounded-lg p-6 text-center mb-8">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              {[...Array(5)].map((_, i) => (
+                <Star key={i} size={20} className="fill-green-500 text-green-500" />
+              ))}
+            </div>
+            <div className="text-2xl font-bold text-gray-900">4.9/5 stars based on 8,000+ customers</div>
+          </div>
+          
+          <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">Why our customers love us</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {customerReviews.map((review, idx) => (
+              <div key={idx} className="bg-white border border-gray-200 rounded-lg p-6">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="font-semibold text-gray-900">{review.name}</span>
+                  {review.verified && (
+                    <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded">Verified Buyer</span>
+                  )}
+                </div>
+                <div className="flex items-center gap-1 mb-3">
+                  {[...Array(review.rating)].map((_, i) => (
+                    <Star key={i} size={14} className="fill-yellow-400 text-yellow-400" />
+                  ))}
+                </div>
+                <p className="text-gray-700 mb-3 leading-relaxed">{review.text}</p>
+                <div className="text-sm text-gray-500">{review.timeAgo}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* FAQ Section */}
+        <div className="mt-20 grid grid-cols-1 md:grid-cols-2 gap-12">
+          <div>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Your style questions, answered.</h2>
+            <p className="text-gray-600 mb-8">
+              We're here to help you find the perfect watch for your style and needs.
+            </p>
+            <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
+                  <MessageCircle size={24} className="text-gray-600" />
+                </div>
+                <div>
+                  <div className="font-semibold text-gray-900">Need more answers?</div>
+                  <div className="text-sm text-gray-600">Our support team is here to help</div>
+                </div>
+              </div>
+              <button className="w-full bg-gray-900 text-white py-3 rounded-lg font-semibold hover:bg-gray-800 transition-colors">
+                Contact Support
+              </button>
+            </div>
+          </div>
+          
+          <div className="space-y-3">
+            {faqQuestions.map((faq, idx) => (
+              <div key={idx} className="border border-gray-200 rounded-lg overflow-hidden">
+                <button
+                  onClick={() => setExpandedFaq(expandedFaq === idx + 10 ? null : idx + 10)}
+                  className="w-full text-left p-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
+                >
+                  <span className="font-medium text-gray-900">{faq.question}</span>
+                  {expandedFaq === idx + 10 ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                </button>
+                {expandedFaq === idx + 10 && (
+                  <div className="p-4 bg-gray-50 border-t border-gray-200 text-gray-700">
+                    {faq.answer}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Footer Features */}
+        <div className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+          <div>
+            <div className="text-3xl mb-3">⏰</div>
+            <div className="font-semibold text-gray-900 mb-1">Your go-to timepiece</div>
+            <div className="text-sm text-gray-600">The watch you'll wear every day</div>
+          </div>
+          <div>
+            <div className="text-3xl mb-3">💎</div>
+            <div className="font-semibold text-gray-900 mb-1">Crafted to impress</div>
+            <div className="text-sm text-gray-600">Premium quality materials</div>
+          </div>
+          <div>
+            <div className="text-3xl mb-3">⏱️</div>
+            <div className="font-semibold text-gray-900 mb-1">Master your moments</div>
+            <div className="text-sm text-gray-600">Chronograph functionality</div>
+          </div>
+          <div>
+            <div className="text-3xl mb-3">✨</div>
+            <div className="font-semibold text-gray-900 mb-1">Uniquely you</div>
+            <div className="text-sm text-gray-600">Express your personal style</div>
           </div>
         </div>
       </div>
-
-      {/* More Options Modal */}
-      {showMoreOptions && (
-        <div
-          className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-          onClick={() => setShowMoreOptions(false)}
-        >
-          <div
-            className="bg-cream rounded-3xl max-w-6xl w-full max-h-[90vh] overflow-y-auto relative"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              onClick={() => setShowMoreOptions(false)}
-              className="absolute top-6 right-6 z-10 p-3 bg-white hover:bg-luxury-gold rounded-full shadow-xl transition-all group"
-            >
-              <X size={24} className="text-forest-green group-hover:text-white" />
-            </button>
-
-            <div className="sticky top-0 gradient-forest text-white px-8 py-6 rounded-t-3xl">
-              <h2 className="font-heading text-3xl font-bold">Explore Our Collection</h2>
-              <p className="text-white/80 mt-2">Click any timepiece to view details</p>
-            </div>
-
-            <div className="p-8">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {recommendedProducts.slice(0, 6).map((watch) => (
-                  <Link
-                    key={watch.id}
-                    to={`/products/${watch.handle}`}
-                    className="group bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all border border-neutral-light/10"
-                  >
-                    <div className="aspect-square bg-cream overflow-hidden">
-                      <img
-                        src={watch.images?.edges?.[0]?.node?.url || watch.featuredImage?.url}
-                        alt={watch.title}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                      />
-                    </div>
-                    <div className="p-6">
-                      <h3 className="font-heading text-xl font-semibold text-forest-green mb-2 line-clamp-2">
-                        {watch.title}
-                      </h3>
-                      <div className="flex items-baseline gap-2">
-                        <span className="font-bold text-luxury-gold text-lg">
-                          ${parseFloat(watch.priceRange?.minVariantPrice?.amount || 0).toFixed(2)}
-                        </span>
-                        {watch.compareAtPriceRange?.minVariantPrice && (
-                          <span className="text-sm text-neutral/50 line-through">
-                            ${parseFloat(watch.compareAtPriceRange.minVariantPrice.amount).toFixed(2)}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       <Analytics.PageView />
     </div>
   );
 }
-
