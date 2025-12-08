@@ -86,17 +86,33 @@ export const meta = () => {
  * Loader - Fetch homepage data
  */
 export async function loader({context}) {
-  const {storefront} = context;
+  try {
+    if (!context || !context.storefront) {
+      console.error('Missing storefront context');
+      return defer({
+        collections: [],
+        featuredProducts: [],
+      });
+    }
 
-  const [{collections}, {products: featuredProducts}] = await Promise.all([
-    storefront.query(COLLECTIONS_QUERY),
-    storefront.query(FEATURED_PRODUCTS_QUERY),
-  ]);
+    const {storefront} = context;
 
-  return defer({
-    collections: collections.nodes,
-    featuredProducts: featuredProducts.nodes,
-  });
+    const [{collections}, {products: featuredProducts}] = await Promise.all([
+      storefront.query(COLLECTIONS_QUERY),
+      storefront.query(FEATURED_PRODUCTS_QUERY),
+    ]);
+
+    return defer({
+      collections: collections?.nodes || [],
+      featuredProducts: featuredProducts?.nodes || [],
+    });
+  } catch (error) {
+    console.error('Error in homepage loader:', error);
+    return defer({
+      collections: [],
+      featuredProducts: [],
+    });
+  }
 }
 
 // Trust indicators data

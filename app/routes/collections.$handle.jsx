@@ -85,46 +85,56 @@ export const meta = ({data, params}) => {
  * Loader - Fetch collection data
  */
 export async function loader({params, context, request}) {
-  const {handle} = params;
-  const {storefront} = context;
-  const url = new URL(request.url);
-  
-  const searchParams = getPaginationVariables(request, {pageBy: 24});
-  
-  // Get filter params
-  const sortKey = url.searchParams.get('sort') || 'COLLECTION_DEFAULT';
-  const reverse = sortKey === 'PRICE' && url.searchParams.get('order') === 'desc';
-  const priceMin = url.searchParams.get('priceMin');
-  const priceMax = url.searchParams.get('priceMax');
-  const productType = url.searchParams.get('type');
-  const vendor = url.searchParams.get('vendor');
-  const available = url.searchParams.get('available');
+  try {
+    if (!context || !context.storefront) {
+      console.error('Missing storefront context in collections loader');
+      throw new Response('Storefront not available', {status: 500});
+    }
 
-  if (!handle) {
-    throw new Response('Expected collection handle', {status: 404});
+    const {handle} = params;
+    const {storefront} = context;
+    const url = new URL(request.url);
+    
+    const searchParams = getPaginationVariables(request, {pageBy: 24});
+    
+    // Get filter params
+    const sortKey = url.searchParams.get('sort') || 'COLLECTION_DEFAULT';
+    const reverse = sortKey === 'PRICE' && url.searchParams.get('order') === 'desc';
+    const priceMin = url.searchParams.get('priceMin');
+    const priceMax = url.searchParams.get('priceMax');
+    const productType = url.searchParams.get('type');
+    const vendor = url.searchParams.get('vendor');
+    const available = url.searchParams.get('available');
+
+    if (!handle) {
+      throw new Response('Expected collection handle', {status: 404});
+    }
+
+    const [{collection}] = await Promise.all([
+      storefront.query(COLLECTION_QUERY, {
+        variables: {
+          handle,
+          ...searchParams,
+          sortKey,
+          reverse,
+          filters: buildFilters({priceMin, priceMax, productType, vendor, available}),
+        },
+      }),
+    ]);
+
+    if (!collection) {
+      throw new Response('Collection not found', {status: 404});
+    }
+
+    return defer({
+      collection,
+      handle,
+      appliedFilters: {sortKey, priceMin, priceMax, productType, vendor, available},
+    });
+  } catch (error) {
+    console.error('Error in collections loader:', error);
+    throw error;
   }
-
-  const [{collection}] = await Promise.all([
-    storefront.query(COLLECTION_QUERY, {
-      variables: {
-        handle,
-        ...searchParams,
-        sortKey,
-        reverse,
-        filters: buildFilters({priceMin, priceMax, productType, vendor, available}),
-      },
-    }),
-  ]);
-
-  if (!collection) {
-    throw new Response('Collection not found', {status: 404});
-  }
-
-  return defer({
-    collection,
-    handle,
-    appliedFilters: {sortKey, priceMin, priceMax, productType, vendor, available},
-  });
 }
 
 // Build Shopify filters

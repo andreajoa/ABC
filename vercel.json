@@ -1,12 +1,6 @@
 {
   "buildCommand": "npm run build",
   "devCommand": "npm run dev",
-  "installCommand": "npm install --legacy-peer-deps",
-  "framework": "remix",
-  "env": {
-    "SHOPIFY_STORE_DOMAIN": "@shopify_store_domain",
-    "SHOPIFY_STOREFRONT_API_TOKEN": "@shopify_storefront_api_token",
-    "SESSION_SECRET": "@session_secret",
-    "PUBLIC_STORE_URL": "@public_store_url"
-  }
+  "installCommand": "npm install",
+  "framework": "remix"
 }

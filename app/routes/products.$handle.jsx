@@ -103,37 +103,47 @@ export const meta = ({data}) => {
  * Loader - Fetch product data
  */
 export async function loader({params, context, request}) {
-  const {handle} = params;
-  const {storefront} = context;
+  try {
+    if (!context || !context.storefront) {
+      console.error('Missing storefront context in products loader');
+      throw new Response('Storefront not available', {status: 500});
+    }
 
-  if (!handle) {
-    throw new Response('Expected product handle', {status: 404});
+    const {handle} = params;
+    const {storefront} = context;
+
+    if (!handle) {
+      throw new Response('Expected product handle', {status: 404});
+    }
+
+    const selectedOptions = getSelectedProductOptions(request);
+
+    const [{product}] = await Promise.all([
+      storefront.query(PRODUCT_QUERY, {
+        variables: {handle, selectedOptions},
+      }),
+    ]);
+
+    if (!product?.id) {
+      throw new Response(null, {status: 404});
+    }
+
+    // Get recommended products
+    const {productRecommendations} = await storefront.query(
+      RECOMMENDED_PRODUCTS_QUERY,
+      {
+        variables: {productId: product.id},
+      },
+    );
+
+    return defer({
+      product,
+      recommendedProducts: productRecommendations || [],
+    });
+  } catch (error) {
+    console.error('Error in products loader:', error);
+    throw error;
   }
-
-  const selectedOptions = getSelectedProductOptions(request);
-
-  const [{product}] = await Promise.all([
-    storefront.query(PRODUCT_QUERY, {
-      variables: {handle, selectedOptions},
-    }),
-  ]);
-
-  if (!product?.id) {
-    throw new Response(null, {status: 404});
-  }
-
-  // Get recommended products
-  const {productRecommendations} = await storefront.query(
-    RECOMMENDED_PRODUCTS_QUERY,
-    {
-      variables: {productId: product.id},
-    },
-  );
-
-  return defer({
-    product,
-    recommendedProducts: productRecommendations || [],
-  });
 }
 
 // Luxury trust badges
