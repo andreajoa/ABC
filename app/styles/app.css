@@ -1,77 +1,55 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --forest-luxe: #0a3d2f;
+  --champagne-gold: #d4af69;
+  --ivory-premium: #fefdf8;
+  --deep-teal: #1a5757;
+  --copper-metallic: #b87333;
+  --charcoal-noir: #2a2a2a;
+  --soft-taupe: #9d8b7c;
+}
+
 @layer base {
-  * {
-    @apply border-neutral-200;
-  }
-  
   body {
-    @apply bg-cream text-neutral font-body antialiased;
-  }
-  
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-heading;
+    @apply bg-[#fefdf8] text-[#2a2a2a] antialiased;
   }
 }
 
-@layer utilities {
-  .gradient-gold {
-    background: linear-gradient(135deg, #d4af69 0%, #b87333 100%);
+@layer components {
+  .btn-primary {
+    @apply bg-[#0a3d2f] text-[#fefdf8] hover:bg-[#1a5757] transition-all duration-300 font-semibold uppercase tracking-wider;
   }
   
-  .gradient-forest {
-    background: linear-gradient(135deg, #0a3d2f 0%, #1a5757 100%);
+  .btn-secondary {
+    @apply bg-[#d4af69] text-[#2a2a2a] hover:bg-[#b87333] transition-all duration-300 font-semibold uppercase tracking-wider;
   }
-  
-  .text-shadow-gold {
-    text-shadow: 0 2px 20px rgba(212, 175, 105, 0.3);
-  }
-  
-  .animate-float {
-    animation: float 6s ease-in-out infinite;
-  }
-  
-  @keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-20px); }
-  }
-  
-  @keyframes shimmer {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
-  }
-  
-  .gradient-shimmer {
-    background: linear-gradient(90deg, transparent, rgba(212, 175, 105, 0.3), transparent);
-    animation: shimmer 2s infinite;
-  }
-  
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  
-  .animate-fade-in-up {
-    animation: fadeInUp 0.8s ease-out forwards;
-  }
-  
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  
-  .animate-fade-in {
-    animation: fadeIn 0.5s ease-out forwards;
+
+  .luxury-card {
+    @apply bg-white shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2;
   }
 }
 
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.8s ease-out forwards;
+}
+
+.parallax-bg {
+  background-attachment: fixed;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
