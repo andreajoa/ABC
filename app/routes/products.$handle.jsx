@@ -1,5 +1,5 @@
 import {useLoaderData, Link} from '@remix-run/react';
-import {defer} from '@shopify/remix-oxygen';
+import {defer} from '@remix-run/node';
 import {useState} from 'react';
 import {
   getSelectedProductOptions,

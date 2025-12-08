@@ -1,5 +1,5 @@
 import {useLoaderData, Link, useSearchParams} from '@remix-run/react';
-import {defer} from '@shopify/remix-oxygen';
+import {defer} from '@remix-run/node';
 import {useState} from 'react';
 import {getPaginationVariables, Analytics} from '@shopify/hydrogen';
 import {

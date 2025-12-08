@@ -1,5 +1,5 @@
 import {useLoaderData, Link} from '@remix-run/react';
-import {defer} from '@shopify/remix-oxygen';
+import {defer} from '@remix-run/node';
 import {useState, useEffect} from 'react';
 import {Analytics} from '@shopify/hydrogen';
 import {
