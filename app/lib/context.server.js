@@ -1,23 +1,21 @@
 import {createStorefrontClient} from './shopify.server';
-import {createCache} from '@shopify/hydrogen-react';
+import {createWithCache, CacheLong} from '@shopify/hydrogen';
 
 /**
  * Create the Remix context with Shopify integration
  */
-export async function createContext(request) {
-  const cache = createCache({
-    type: 'memory',
-  });
+export async function createContext(request, env, executionContext) {
+  const waitUntil = executionContext?.waitUntil || (() => {});
+  const cache = await caches.open('hydrogen');
 
   const storefront = createStorefrontClient({
     request,
-    response: new Response(),
     cache,
+    waitUntil,
   });
 
   return {
     storefront,
-    cache,
+    env,
   };
 }
-
